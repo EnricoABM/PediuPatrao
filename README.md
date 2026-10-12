@@ -1,6 +1,14 @@
-# Introdução
+<div align="center">
 
-Sistema para gerenciamento de pedidos, usuários e produtos de uma pizzaria. Envolve o controle de acesso, política de segurança e auditoria de ações de seus usuários. 
+# PediuPatrao
+
+![home screen](https://github.com/EnricoABM/PediuPatrao/blob/main/docs/home-screenshot.png)
+
+### Sistema para gerenciamento de pedidos, usuários e produtos de uma pizzaria. Envolve o controle de acesso, política de segurança e auditoria de ações de seus usuários. 
+
+</div>
+
+---
 
 ## Tecnologias
 * Java 21
