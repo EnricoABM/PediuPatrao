@@ -3,6 +3,7 @@ package com.umc.pediupatrao.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.umc.pediupatrao.entity.Cliente;
@@ -17,24 +18,30 @@ public class ClienteService {
         this.clienteRepository = clienteRepository;
     }
 
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     public Cliente novoCliente(Cliente cliente) {
         return clienteRepository.save(cliente);
     }
 
+    
+    @PreAuthorize("hasAuthority('USER_READ_ALL')")
     public List<Cliente> listarClientes() {
         return clienteRepository.findAll();
     }
 
     // Método para excluir cliente
+    @PreAuthorize("hasAuthority('USER_DELETE')")
     public void excluir(String id) {
         clienteRepository.deleteById(id);
     }
 
+    @PreAuthorize("hasAuthority('USER_READ')")
     public Optional<Cliente> buscarPorId(String id) {
         return clienteRepository.findById(id);
     }
 
     // Método para salvar um novo cliente ou atualizar um cliente existente
+    @PreAuthorize("hasAnyAuthority('USER_CREATE', 'USER_UPDATE')")
     public Cliente salvar(Cliente cliente) {
         // Se o cliente não tem ID (novo cliente), salva como novo
         if (cliente.getId() == null) {

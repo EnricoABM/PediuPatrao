@@ -1,6 +1,7 @@
 package com.umc.pediupatrao.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.umc.pediupatrao.entity.Cliente;
 import com.umc.pediupatrao.entity.Pedido;
 import com.umc.pediupatrao.entity.Produto;
-import com.umc.pediupatrao.entity.Usuario;
+import com.umc.pediupatrao.entity.user.Usuario;
 import com.umc.pediupatrao.service.ClienteService;
 import com.umc.pediupatrao.service.PedidoService;
 import com.umc.pediupatrao.service.ProdutoService;
@@ -73,7 +74,7 @@ public class HomeController {
     }
 
     @GetMapping("/usuarios/editar/{id}")
-    public String editarUsuarioForm(@PathVariable String id, Model model,
+    public String editarUsuarioForm(@PathVariable UUID id, Model model,
             RedirectAttributes redirectAttributes) {
         boolean encontrado = usuarioService.buscarPorId(id).map(u -> {
             model.addAttribute("usuario", u);
@@ -98,7 +99,7 @@ public class HomeController {
     }
 
     @PostMapping("/usuarios/editar/{id}")
-    public String atualizarUsuario(@PathVariable String id,
+    public String atualizarUsuario(@PathVariable UUID id,
             @ModelAttribute Usuario usuario,
             RedirectAttributes redirectAttributes) {
         usuarioService.atualizarUsuario(id, usuario);
@@ -107,7 +108,7 @@ public class HomeController {
     }
 
     @PostMapping("/usuarios/deletar/{id}")
-    public String deletarUsuario(@PathVariable String id,
+    public String deletarUsuario(@PathVariable UUID id,
             RedirectAttributes redirectAttributes) {
         usuarioService.deletarUsuario(id);
         redirectAttributes.addFlashAttribute("sucesso", "Usuário removido com sucesso!");

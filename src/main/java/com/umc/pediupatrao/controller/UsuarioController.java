@@ -1,12 +1,13 @@
 package com.umc.pediupatrao.controller;
 
-import com.umc.pediupatrao.entity.Usuario;
+import com.umc.pediupatrao.entity.user.Usuario;
 import com.umc.pediupatrao.service.UsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -27,7 +28,7 @@ public class UsuarioController {
 
     // Endpoint para buscar um usuário por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable String id) {
+    public ResponseEntity<Usuario> buscarPorId(@PathVariable UUID id) {
         Optional<Usuario> usuario = usuarioService.buscarPorId(id);
         return usuario.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
@@ -41,7 +42,7 @@ public class UsuarioController {
 
     // Endpoint para atualizar um usuário
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizarUsuario(@PathVariable String id, @RequestBody Usuario usuarioAtualizado) {
+    public ResponseEntity<Usuario> atualizarUsuario(@PathVariable UUID id, @RequestBody Usuario usuarioAtualizado) {
         Optional<Usuario> usuarioExistente = usuarioService.buscarPorId(id);
 
         if (usuarioExistente.isPresent()) {
@@ -58,7 +59,7 @@ public class UsuarioController {
 
     // Endpoint para deletar um usuário
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarUsuario(@PathVariable String id) {
+    public ResponseEntity<Void> deletarUsuario(@PathVariable UUID id) {
         Optional<Usuario> usuarioExistente = usuarioService.buscarPorId(id);
 
         if (usuarioExistente.isPresent()) {
