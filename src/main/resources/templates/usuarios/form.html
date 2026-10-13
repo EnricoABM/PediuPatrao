@@ -28,13 +28,13 @@
                 <!-- Username -->
                 <div class="mb-3">
                     <label for="username" class="form-label fw-medium">
-                        <i class="bi bi-person me-1"></i>Username
+                        <i class="bi bi-person me-1"></i>Nome
                     </label>
                     <input type="text"
                            id="username"
                            class="form-control"
                            th:field="*{username}"
-                           placeholder="Ex: joao.silva"
+                           placeholder="Digite o nome do usuário"
                            required/>
                 </div>
 
@@ -51,7 +51,7 @@
                                id="password"
                                class="form-control"
                                th:field="*{password}"
-                               placeholder="••••••••"
+                               placeholder="Digite a senha do usuário"
                                th:required="${usuario.id == null}"/>
                         <button type="button" class="btn btn-outline-secondary" id="togglePassword">
                             <i class="bi bi-eye" id="eyeIcon"></i>
@@ -66,8 +66,9 @@
                     </label>
                     <select id="role" class="form-select" th:field="*{role}" required>
                         <option value="" disabled>Selecione um perfil</option>
-                        <option value="ADMIN">ADMIN</option>
-                        <option value="USER">USER</option>
+                        <option value="ADMIN">Administrador</option>
+                        <option value="GERENTE">Gerente</option>
+                        <option value="ATENDENTE">Atendente</option>
                     </select>
                 </div>
 

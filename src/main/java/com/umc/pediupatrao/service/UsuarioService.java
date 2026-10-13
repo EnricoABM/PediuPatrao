@@ -23,7 +23,7 @@ public class UsuarioService {
 
     // Busca um usuário por ID
     @PreAuthorize("hasAuthority('USER_READ')")
-    public Optional<Usuario> buscarPorId(UUID id) {
+    public Optional<Usuario> buscarPorId(String id) {
         return usuarioRepository.findById(id);
     }
 
@@ -36,14 +36,15 @@ public class UsuarioService {
     // Salva um novo usuário (criptografando a senha)
     @PreAuthorize("hasAuthority('USER_CREATE')")
     public void salvarUsuario(Usuario usuario) {
+        usuario.setId(UUID.randomUUID().toString());
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // Criptografa a senha
         usuarioRepository.save(usuario);
     }
 
     // Deleta um usuário pelo ID
     @PreAuthorize("hasAuthority('USER_DELETE')")
-    public void deletarUsuario(UUID id) {
-        usuarioRepository.deleteById(id);
+    public void deletarUsuario(String id) {
+        usuarioRepository.deleteById(id.toString());
     }
 
     // Lista todos os usuários
@@ -54,7 +55,7 @@ public class UsuarioService {
 
     // Atualiza o usuário usuários
     @PreAuthorize("hasAuthority('USER_UPDATE')")
-    public void atualizarUsuario(UUID id, Usuario usuarioAtualizado) {
+    public void atualizarUsuario(String id, Usuario usuarioAtualizado) {
         usuarioRepository.findById(id).ifPresent(usuarioExistente -> {
             usuarioExistente.setUsername(usuarioAtualizado.getUsername());
             usuarioExistente.setRole(usuarioAtualizado.getRole());

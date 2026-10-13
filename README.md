@@ -16,7 +16,7 @@
 * Spring Security
 * MongoDB
 * Thymeleaf
-* AdminLTE
+* Bootstrap
 
 ## Como executar
 
