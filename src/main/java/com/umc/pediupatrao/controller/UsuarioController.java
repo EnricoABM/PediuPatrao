@@ -1,7 +1,6 @@
 package com.umc.pediupatrao.controller;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +17,8 @@ import com.umc.pediupatrao.dto.UsuarioRegisterDTO;
 import com.umc.pediupatrao.entity.user.Usuario;
 import com.umc.pediupatrao.service.UsuarioService;
 
-@RequestMapping("/usuarios")
 @Controller
+@RequestMapping("/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
