@@ -2,16 +2,16 @@
 
 ## RF01 - Controle de Usuários e Permissões (2,0 pts)
 * **Gerenciamento de Perfis e Autenticação:**
-  - [ ] Atualizar o modelo/enum de perfis para contemplar: `ADMIN`, `GERENTE` e `ATENDENTE`.
-  - [ ] Ajustar o `UserDetailsService` / fluxo de autenticação para carregar e atribuir corretamente as *authorities* de acordo com o perfil cadastrado no MongoDB.
+  - [x] Atualizar o modelo/enum de perfis para contemplar: `ADMIN`, `GERENTE` e `ATENDENTE`.
+  - [x] Ajustar o `UserDetailsService` / fluxo de autenticação para carregar e atribuir corretamente as *authorities* de acordo com o perfil cadastrado no MongoDB.
 * **Proteção Backend com Spring Security (`SecurityConfig`):**
-  - [ ] Configurar controle de acesso em nível de rota (ex: `.hasRole()` / `.hasAnyRole()`) para proteger URLs de ADMIN, GERENTE e ATENDENTE.
+  - [x] Configurar controle de acesso em nível de rota (ex: `.hasRole()` / `.hasAnyRole()`) para proteger URLs de ADMIN, GERENTE e ATENDENTE.
   - [ ] Aplicar anotações `@PreAuthorize` na camada de serviço/controlador em métodos restritos.
   - [ ] Garantir que ações exclusivas do `GERENTE` (descontos e cancelamentos) fiquem bloqueadas no backend para `ADMIN` e `ATENDENTE`.
   - [ ] Proteger rotas de criação/alteração de usuários para evitar atribuição indevida de privilégios e autoelevação de perfil.
   - [ ] Revisar e validar a proteção CSRF nos formulários e endpoints de operações sensíveis.
 * **Interface Thymeleaf:**
-  - [ ] Ajustar a exibição condicional de botões/links na interface com base no perfil autenticado (sem depender exclusivamente dessa camada para segurança).
+  - [x] Ajustar a exibição condicional de botões/links na interface com base no perfil autenticado (sem depender exclusivamente dessa camada para segurança).
 
 ---
 

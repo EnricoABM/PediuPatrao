@@ -45,13 +45,17 @@
             <version>3.3.0</version> <!-- ✅ versão compatível com Spring Boot 3 -->
         </dependency>
         <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.36</version> <!-- ✅ versão correta -->
+            <version>1.18.38</version> <!-- ✅ versão correta -->
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -70,6 +74,19 @@
                 <!-- ✅ versão herdada do parent, sem necessidade de repetir -->
                 <configuration>
                     <mainClass>com.umc.pediupatrao.PizzariaPedidosApplication</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.36</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>

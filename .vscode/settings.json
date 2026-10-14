@@ -1,5 +1,6 @@
 {
     "files.readonlyInclude": {
         "docs/*": true,
-    }
+    },
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

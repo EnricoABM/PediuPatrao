@@ -6,7 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.umc.pediupatrao.entity.Usuario;
+import com.umc.pediupatrao.entity.user.UserRole;
+import com.umc.pediupatrao.entity.user.Usuario;
 import com.umc.pediupatrao.repository.UsuarioRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ public class DataInitializer {
                 Usuario user = new Usuario();
                 user.setUsername(username);
                 user.setPassword(passwordEncoder.encode(password));
+                user.setRole(UserRole.ADMIN);
 
                 repo.save(user);
 
