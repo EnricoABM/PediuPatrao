@@ -11,7 +11,7 @@
             <h2 class="fw-bold mb-0">
                 Clientes
             </h2>
-            <a href="/clientes/novo" class="btn btn-primary">
+            <a href="/clientes/novo" class="btn btn-primary" sec:authorize="hasAuthority('CLIENT_CREATE')">
                 <i class="bi bi-plus-lg me-1"></i> Novo Cliente
             </a>
         </div>
@@ -40,12 +40,13 @@
                             <td th:text="${cliente.endereco()}"></td>
                             <td class="text-end pe-4">
                                 <a th:href="@{/clientes/editar/{id}(id=${cliente.id()})}"
-                                    class="btn btn-sm btn-outline-primary me-1">
+                                    class="btn btn-sm btn-outline-primary me-1"
+                                    sec:authorize="hasAuthority('CLIENT_UPDATE')" >
                                     <i class="bi bi-pencil-fill"></i> Editar
                                 </a>
                                 <form th:action="@{/clientes/deletar/{id}(id=${cliente.id()})}" method="post"
                                     th:onsubmit="'return confirm(\'Deseja excluir o cliente\')'">
-                                    <button class="btn btn-sm btn-outline-danger" type="submit">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" sec:authorize="hasAuthority('CLIENT_DELETE')">
                                         <i class="bi bi-trash-fill"></i> Excluir
                                     </button>
                                 </form>
