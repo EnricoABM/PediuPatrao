@@ -26,7 +26,7 @@
                             <i class="bi bi-bag"></i><span class="d-none d-md-inline">&nbsp;Pedidos</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li sec:authorize="hasAnyRole('GERENTE', 'ATENDENTE')" class="nav-item">
                         <a class="nav-link" th:href="@{/produtos}">
                             <i class="bi bi-boxes"></i><span class="d-none d-md-inline">&nbsp;Produtos</span>
                         </a>
@@ -37,16 +37,6 @@
                             <span class="float-end">&#9662;</span> <!-- Setinha -->
                         </a>
                         <ul class="nav flex-column submenu">
-                            <li class="nav-item">
-                                <a class="nav-link" th:href="@{/funcionarios}">
-                                    <i class="bi bi-person-walking"></i><span class="d-none d-md-inline">&nbsp;Funcionários</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" th:href="@{/entregadores}">
-                                    <i class="bi bi-bicycle"></i><span class="d-none d-md-inline">&nbsp;Entregadores</span>
-                                </a>
-                            </li>
                             
                             <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                                 <a class="nav-link" th:href="@{/usuarios}">

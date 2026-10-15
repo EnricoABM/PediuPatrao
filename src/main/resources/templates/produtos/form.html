@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Cadastro de Produto</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <div th:fragment="content" class="card card-body p-4">
+        <h1 th:text="${produto.id == null ? 'Novo Produto' : 'Editar Produto'}"></h1>
+        <form th:action="@{/produtos}" th:object="${produto}" method="post">
+            <input type="hidden" th:field="*{id}" id="id" name="id">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome do Produto</label>
+                <input th:field="*{nome}" type="text" id="nome" name="nome" class="form-control" placeholder="Nome do Produto" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="tipo" class="form-label">Tipo do Produto</label>
+                <select th:field="*{tipo}" id="tipo" name="tipo" class="form-select" required>
+                    <option value="" disabled selected>Selecione o Tipo</option>
+                    <option value="Pizza">Pizza</option>
+                    <option value="Lanche">Lanche</option>
+                    <option value="Bebida">Bebida</option>
+                    <option value="Porção">Porção</option>
+                    <option value="Adicional">Adicional</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="preco" class="form-label">Preço</label>
+                <input th:field="*{preco}" type="number" id="preco" name="preco" class="form-control" placeholder="Preço (R$)" step="0.01"
+                    required>
+            </div>
+
+            <div class="form-check mb-3">
+                <input th:field="*{ativo}" type="checkbox" id="ativo" name="ativo" class="form-check-input">
+                <label for="ativo" class="form-check-label">Produto Ativo</label>
+            </div>
+
+            <div class="d-flex justify-content-end gap-1">
+                <button type="submit" class="btn btn-success">Salvar</button>
+                <a th:href="@{/produtos}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

@@ -6,15 +6,28 @@
 </head>
 
 <body>
-    <div th:fragment="content">
+    <div th:fragment="content" class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0">
+            <h1 class="mb-4">
                 Clientes
-            </h2>
+            </h1>
             <a href="/clientes/novo" class="btn btn-primary" sec:authorize="hasAuthority('CLIENT_CREATE')">
-                <i class="bi bi-plus-lg me-1"></i> Novo Cliente
+                Novo Cliente
             </a>
         </div>
+
+        <!-- Mensagens de feedback -->
+        <div class="alert alert-success alert-dismissible fade show" th:if="${sucesso}" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${sucesso}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" th:if="${erro}" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${erro}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
 
         <!-- Tabela de clientes -->
         <div class="card shadow-sm">
@@ -25,7 +38,7 @@
                             <th>Nome</th>
                             <th>Telefone</th>
                             <th>Endereço</th>
-                            <th class="text-end pe-4">Ações</th>
+                            <th style="width: 15%;" class="text-end pe-4">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="clientes-tabela">
@@ -38,16 +51,16 @@
                             <td th:text="${cliente.nome()}"></td>
                             <td th:text="${cliente.telefone()}"></td>
                             <td th:text="${cliente.endereco()}"></td>
-                            <td class="text-end pe-4">
+                            <td class="text-end d-flex justify-content-around">
                                 <a th:href="@{/clientes/editar/{id}(id=${cliente.id()})}"
-                                    class="btn btn-sm btn-outline-primary me-1"
+                                    class="btn btn-warning btn-sm"
                                     sec:authorize="hasAuthority('CLIENT_UPDATE')" >
-                                    <i class="bi bi-pencil-fill"></i> Editar
+                                    Editar
                                 </a>
                                 <form th:action="@{/clientes/deletar/{id}(id=${cliente.id()})}" method="post"
                                     th:onsubmit="'return confirm(\'Deseja excluir o cliente\')'">
-                                    <button class="btn btn-sm btn-outline-danger" type="submit" sec:authorize="hasAuthority('CLIENT_DELETE')">
-                                        <i class="bi bi-trash-fill"></i> Excluir
+                                    <button class="btn btn-danger btn-sm" type="submit" sec:authorize="hasAuthority('CLIENT_DELETE')">
+                                        Excluir
                                     </button>
                                 </form>
                             </td>
