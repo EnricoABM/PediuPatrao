@@ -3,7 +3,6 @@ package com.umc.pediupatrao.entity.user;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -33,7 +32,7 @@ public class Usuario implements UserDetails {
 
         role.getPermissions().forEach(
             (permission) -> {
-                authorities.add(new SimpleGrantedAuthority(permission.name()));
+                authorities.add(new SimpleGrantedAuthority(permission.getName()));
             });
 
         return authorities;
