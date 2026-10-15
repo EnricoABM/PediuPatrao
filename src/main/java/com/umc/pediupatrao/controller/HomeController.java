@@ -51,20 +51,6 @@ public class HomeController {
     }
 
     // ========================
-    // PRODUTOS
-    // ========================
-    @GetMapping("/produtos")
-    public String produtos(Model model) {
-        List<Produto> produtos = produtoService.listarProdutos();
-        model.addAttribute("produtos", produtos);
-        model.addAttribute("content", "produtos/lista :: content");
-        log.info("Carregando fragmento: produtos/lista :: content");
-        return "layout";
-    }
-
-
-
-    // ========================
     // OUTRAS ROTAS
     // ========================
     @GetMapping("/configuracoes")
