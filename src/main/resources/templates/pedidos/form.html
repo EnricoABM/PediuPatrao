@@ -2,36 +2,45 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Cadastro de Pedido</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <title>Novo Pedido</title>
 </head>
 
 <body>
-    <div th:fragment="content" class="card card-body p-4">
+    <div th:fragment="content" class="container">
+
+        <div class="d-flex flex-row align-items-center gap-3 mb-4">
+            <a th:href="@{/pedidos}"><i class="bi text-muted bi-arrow-left"></i></a>
+            <h1 class="mb-2">
+                Cadastrar Pedido
+            </h1>
+        </div>
+
         <form th:action="@{/pedidos}" th:object="${pedido}" method="post" id="formPedido">
-
             <input type="hidden" name="usuarioId" th:value="${usuario.id}" />
-            <div class="mb-3">
-                <label for="tipo" class="form-label">Cliente</label>
 
-                <select th:field="*{clienteId}" id="cliente" name="cliente" class="form-select" required>
-                    <option value="" selected disabled>Selecione o Cliente</option>
-                    <th:block th:each="cliente : ${clientes}">
-                        <option th:value="${cliente.id}" th:text="${cliente.nome}"></option>
-                    </th:block>
-                </select>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h3 class="h5 mb-3 text-dark fw-bold">Informações do Pedido</h3>
+                    <div class="mb-3">
+                        <label for="cliente" class="form-label fw-bold">Cliente</label>
+                        <select th:field="*{clienteId}" id="cliente" name="cliente" class="form-select" required>
+                            <option value="" selected disabled>Selecione o Cliente</option>
+                            <th:block th:each="cliente : ${clientes}">
+                                <option th:value="${cliente.id}" th:text="${cliente.nome}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-                <hr>
-
-                <h3>Itens do Pedido</h3>
-
-                <div id="container-itens">
-
-                    <div class="item-row px-3 pb-2" data-index="0">
-                        <label class="form-label fw-bold">Produto 1</label>
-
-                        <div class="d-flex gap-3 align-items-center">
-                            
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h3 class="h5 mb-3 text-dark fw-bold">Produtos do Pedido</h3>
+                </div>
+                <div class="card-body p-0" id="container-itens">
+                    <div class="item-row p-3 border-bottom" data-index="0">
+                        <label class="form-label fw-bold small text-muted">Produto 1</label>
+                        <div class="d-flex gap-3 align-items-center flex-wrap">
                             <select name="itens[0].produtoId" class="form-select produto-select" style="flex: 2;" required onchange="atualizarValores(this)">
                                 <option value="" selected disabled>Selecione um Produto</option>
                                 <th:block th:each="produto : ${produtos}">
@@ -48,19 +57,19 @@
 
                             <div style="width: 15%;">
                                 <span class="text-muted small d-block">Subtotal</span>
-                                <strong class="subtotal text-success">R$ 0,00</strong>
+                                <strong class="subtotal">R$ 0,00</strong>
                             </div>
 
                             <button class="btn btn-danger btn-sm" type="button" onclick="removerItem(this)">Remover</button>
                         </div>
                     </div>
                 </div>
-
-                <button type="button" class="btn btn-secondary btn-sm mx-3 mb-3" onclick="adicionarItem()">Adicionar Item</button>
-
-                <div class="alert-info d-flex justify-content-between">
+                <div class="card-body">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="adicionarItem()">Adicionar Item</button>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
                     <div class="fs-5 fw-bold">
-                        Valor Total do Pedido: <span id="valorTotalGeral">R$ 0,00</span>
+                        Total: <span id="valorTotalGeral">R$ 0,00</span>
                     </div>
                     <button class="btn btn-primary" type="submit">Cadastrar Pedido</button>
                 </div>
@@ -83,11 +92,11 @@
                 });
 
                 const novaLinha = document.createElement('div');
-                novaLinha.className = 'item-row px-3 pb-2';
+                novaLinha.className = 'item-row p-3 border-bottom';
                 novaLinha.setAttribute('data-index', itemIndex);
 
                 novaLinha.innerHTML = `
-                    <label class="form-label fw-bold">Produto ${itemIndex + 1}</label>
+                    <label class="form-label fw-bold small text-muted">Produto ${itemIndex + 1}</label>
                     <div class="d-flex gap-3 align-items-center flex-wrap">
                         <select name="itens[${itemIndex}].produtoId" class="form-select produto-select" style="flex: 2;" required onchange="atualizarValores(this)">
                             ${opcoesHtml}
@@ -102,7 +111,7 @@
 
                         <div style="width: 15%;">
                             <span class="text-muted small d-block">Subtotal</span>
-                            <strong class="subtotal text-success">R$ 0,00</strong>
+                            <strong class="subtotal">R$ 0,00</strong>
                         </div>
 
                         <button class="btn btn-danger btn-sm" type="button" onclick="removerItem(this)">Remover</button>

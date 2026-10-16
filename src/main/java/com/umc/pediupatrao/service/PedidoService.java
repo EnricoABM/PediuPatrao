@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.umc.pediupatrao.dto.PedidoRegisterDTO;
@@ -28,23 +29,18 @@ public class PedidoService {
 
     private final UsuarioService usuarioService;
 
-    private final ProdutoService produtoService;
-
-    private final ClienteService clienteService;
-
     private final PedidoMapper pedidoMapper;
 
     PedidoService(PedidoRepository pedidoRepository, ItemPedidoRepository itemRepository,
-            PedidoHistoricoRepository historicoRepository, ProdutoService produtoService, UsuarioService usuarioService, ClienteService clienteService, PedidoMapper pedidoMapper) {
+            PedidoHistoricoRepository historicoRepository, UsuarioService usuarioService, PedidoMapper pedidoMapper) {
         this.pedidoRepository = pedidoRepository;
         this.itemRepository = itemRepository;
         this.historicoRepository = historicoRepository;
         this.usuarioService = usuarioService;
-        this.produtoService = produtoService;
-        this.clienteService = clienteService;
         this.pedidoMapper = pedidoMapper;
     }
 
+    @PreAuthorize("hasAuthority('ORDER_CREATE')")
     public Pedido criarPedido(PedidoRegisterDTO dto) {
         Pedido pedido = pedidoMapper.conveterDTO(dto);
 
@@ -71,14 +67,17 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
+    @PreAuthorize("hasAuthority('ORDER_READ_ALL')")
     public List<Pedido> listarPedidos() {
         return pedidoRepository.findAll();
     }
 
+    @PreAuthorize("hasAuthority('ORDER_READ')")
     public Pedido buscarPorId(String id) {
         return pedidoRepository.findById(id).orElseThrow();
     }
 
+    @PreAuthorize("hasAuthority('ORDER_PROGRESS')")
     public void avancarStatus(String pedidoId, String usuarioNome) {
         Usuario usuario = usuarioService.buscarPorUsername(usuarioNome).orElseThrow();
         Pedido pedido = buscarPorId(pedidoId);
@@ -95,6 +94,7 @@ public class PedidoService {
         pedidoRepository.save(pedido);
     }
 
+    @PreAuthorize("hasAuthority('ORDER_DELETE')")
     public void cancelarPedido(String pedidoId, String justificativa, String usuarioNome) {
         Usuario usuario = usuarioService.buscarPorUsername(usuarioNome).orElseThrow();
         Pedido pedido = buscarPorId(pedidoId);
@@ -111,6 +111,7 @@ public class PedidoService {
         pedidoRepository.save(pedido);
     }
 
+    @PreAuthorize("hasAuthority('ORDER_DESCOUNT')")
     public void aplicarDesconto(String pedidoId, Integer desconto) {
         Pedido pedido = buscarPorId(pedidoId);
         pedido.setDesconto(desconto);

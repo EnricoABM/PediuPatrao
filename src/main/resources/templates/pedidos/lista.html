@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html 
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <title>Lista de Pedidos</title>
@@ -13,7 +15,7 @@
             <h1 class="mb-4">
                 Pedidos
             </h1>
-            <a th:href="@{/pedidos/novo}" class="btn btn-primary">
+            <a sec:authorize="hasAuthority('ORDER_CREATE')" th:href="@{/pedidos/novo}" class="btn btn-primary">
                 Novo Pedido
             </a>
         </div>
@@ -54,7 +56,7 @@
                         </tr>
                         <!-- Linhas -->
                         <tr th:each="pedido : ${pedidos}">
-                            <td class="ps-4 text-muted" th:text="${pedido.id}"></td>
+                            <td class="ps-4 text-muted" th:text="${pedido.id.substring(0, pedido.id.indexOf('-'))}"></td>
                             <td th:text="${pedido.clienteNome}"></td>
                             <td th:text="${#temporals.format(pedido.horario, 'dd/MM/yyyy HH:mm')}"></td>
                             <td th:text="${pedido.usuarioNome}"></td>
@@ -67,7 +69,7 @@
                                 </span>
                             </td>
                             <td>
-                                <a th:href="@{/pedidos/exibir/{id}(id=${pedido.id})}" class="btn btn-success btn-sm">
+                                <a sec:authorize="hasAuthority('ORDER_READ')" th:href="@{/pedidos/exibir/{id}(id=${pedido.id})}" class="btn btn-success btn-sm">
                                     Exibir
                                 </a>
                             </td>

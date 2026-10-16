@@ -21,23 +21,4 @@ public class HomeController {
         model.addAttribute("content", "home :: content");
         return "layout";
     }
-
-    // ========================
-    // OUTRAS ROTAS
-    // ========================
-    @GetMapping("/configuracoes")
-    public String configuracoes(Model model) {
-        model.addAttribute("content", "configuracoes :: content");
-        return "layout";
-    }
-
-    @GetMapping("/teste")
-    public String teste() {
-        return "teste";
-    }
-
-    @GetMapping("/admin")
-    public String admin() {
-        return "admin";
-    }
 }

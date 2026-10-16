@@ -3,6 +3,8 @@ package com.umc.pediupatrao.entity.user;
 import static com.umc.pediupatrao.entity.permission.UserPermission.*;
 import static com.umc.pediupatrao.entity.permission.ClientPermission.*;
 import static com.umc.pediupatrao.entity.permission.ProductPermission.*;
+import static com.umc.pediupatrao.entity.permission.OrderPermission.*;
+
 
 import java.util.List;
 
@@ -33,7 +35,13 @@ public enum UserRole {
             PRODUCT_READ,
             PRODUCT_READ_ALL,
             PRODUCT_DELETE,
-            PRODUCT_UPDATE
+            PRODUCT_UPDATE,
+            ORDER_CREATE,
+            ORDER_READ_ALL,
+            ORDER_READ,
+            ORDER_PROGRESS,
+            ORDER_DESCOUNT,
+            ORDER_DELETE
         )),
     ATENDENTE(List.of(
             USER_READ,
@@ -42,7 +50,11 @@ public enum UserRole {
             CLIENT_CREATE,
             CLIENT_UPDATE,
             PRODUCT_READ,
-            PRODUCT_READ_ALL
+            PRODUCT_READ_ALL,
+            ORDER_CREATE,
+            ORDER_READ,
+            ORDER_READ_ALL,
+            ORDER_PROGRESS
         ));
 
     private List<Permission> permissions;
