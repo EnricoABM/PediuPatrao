@@ -35,7 +35,7 @@
                             <th>Usuário (Perfil)</th>
                             <th>Operação</th>
                             <th>Entidade (ID)</th>
-                            <th>Alterações / Justificativa</th>
+                            <th>Alterações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,14 +67,10 @@
                                     <ul class="list-unstyled mb-0">
                                         <li th:each="entry : ${log.camposModificados}">
                                             <strong th:text="${entry.key} + ':'"></strong>
-                                            <span class="text-danger" th:text="${entry.value[0]}"></span> 
-                                            <i class="bi bi-arrow-right mx-1"></i>
+                                            <span class="text-danger" th:text="${entry.value[0]}"></span> |
                                             <span class="text-success" th:text="${entry.value[1]}"></span>
                                         </li>
                                     </ul>
-                                </div>
-                                <div th:if="${log.justificativa != null && !log.justificativa.isEmpty()}" class="mt-1 text-danger">
-                                    <strong>Justificativa:</strong> <span th:text="${log.justificativa}"></span>
                                 </div>
                                 <span class="text-muted fst-italic" th:if="${(log.camposModificados == null || log.camposModificados.isEmpty()) && (log.justificativa == null || log.justificativa.isEmpty())}">-</span>
                             </td>
