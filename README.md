@@ -112,4 +112,5 @@ Acesse as URLs:
 * Criado controle sequencial para o avanço do estado do pedido, além de bloqueios para o cancelamento e aplicação de desconto em pedidos retirados, finalizados ou cancelados.
 * Criado mecanismo para cancelamento de pedidos, salve justificativa cadastrada, aos gerentes do sistema.
 
-> [!WARNING] A atualização do valor exibido ao funcionário durante o cadastro do pedido é meramente visual e utiliza funções javascript. O cálculo final é realizado pelo backend, conforme o preço de cada produto e sua quantidade. 
+> [!WARNING]
+> A atualização do valor exibido ao funcionário durante o cadastro do pedido é meramente visual e utiliza funções javascript. O cálculo final é realizado pelo backend, conforme o preço de cada produto e sua quantidade. 
