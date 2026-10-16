@@ -7,6 +7,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,10 +18,13 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditoriaService auditoriaService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
+            AuditoriaService auditoriaService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.auditoriaService = auditoriaService;
     }
 
     // Busca um usuário por ID
@@ -38,13 +44,26 @@ public class UsuarioService {
     public void salvarUsuario(Usuario usuario) {
         usuario.setId(UUID.randomUUID().toString());
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // Criptografa a senha
-        usuarioRepository.save(usuario);
+
+        Usuario salvo = usuarioRepository.save(usuario);
+
+        Map<String, Object[]> campos = new HashMap<>();
+        campos.put("username", new Object[] { null, salvo.getUsername() });
+        auditoriaService.registrar("INCLUSAO", "USUARIO", salvo.getId(), campos, null);
+
     }
 
     // Deleta um usuário pelo ID
     @PreAuthorize("hasAuthority('USER_DELETE')")
     public void deletarUsuario(String id) {
-        usuarioRepository.deleteById(id.toString());
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+        usuarioRepository.deleteById(id);
+
+        if (usuario != null) {
+            Map<String, Object[]> campos = new HashMap<>();
+            campos.put("username", new Object[] { usuario.getUsername(), null });
+            auditoriaService.registrar("EXCLUSAO", "USUARIO", id, campos, null);
+        }
     }
 
     // Lista todos os usuários
@@ -65,7 +84,19 @@ public class UsuarioService {
                 usuarioExistente.setPassword(passwordEncoder.encode(usuarioAtualizado.getPassword()));
             }
 
+            String usernameAntigo = usuarioExistente.getUsername();
+            String novoUsername = usuarioAtualizado.getUsername();
+
             usuarioRepository.save(usuarioExistente);
+
+            Map<String, Object[]> camposModificados = new HashMap<>();
+            if (!Objects.equals(usernameAntigo, usuarioExistente.getUsername())) {
+                camposModificados.put("username", new Object[] { usernameAntigo, usuarioExistente.getUsername() });
+            }
+
+            if (!camposModificados.isEmpty()) {
+                auditoriaService.registrar("ALTERACAO", "USUARIO", id, camposModificados, null);
+            }
         });
     }
 }

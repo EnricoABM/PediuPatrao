@@ -1,6 +1,9 @@
 package com.umc.pediupatrao.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,8 +18,11 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
 
-    ProdutoService(ProdutoRepository produtoRepository) {
+    private final AuditoriaService auditoriaService;
+
+    ProdutoService(ProdutoRepository produtoRepository, AuditoriaService auditoriaService) {
         this.produtoRepository = produtoRepository;
+        this.auditoriaService = auditoriaService;
     }
 
     @PreAuthorize("hasAuthority('PRODUCT_READ_ALL')")
@@ -27,7 +33,15 @@ public class ProdutoService {
     // Método para excluir produto
     @PreAuthorize("hasAuthority('PRODUCT_DELETE')")
     public void excluir(String id) {
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado para remoção."));
+
         produtoRepository.deleteById(id);
+
+        Map<String, Object[]> campos = new HashMap<>();
+        campos.put("nome", new Object[] { produto.getNome(), null });
+
+        auditoriaService.registrar("EXCLUSAO", "PRODUTO", id, campos, null);
     }
 
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
@@ -35,7 +49,6 @@ public class ProdutoService {
         return produtoRepository.findById(id);
     }
 
-    // Método para salvar um novo produto ou atualizar um produto
     public Produto salvar(Produto produto) {
         if (produto.getId() == null || produto.getId().isBlank()) {
             return this.novoProduto(produto);
@@ -47,15 +60,36 @@ public class ProdutoService {
     @PreAuthorize("hasAuthority('PRODUCT_CREATE')")
     public Produto novoProduto(Produto produto) {
         produto.setId(UUID.randomUUID().toString());
-        return produtoRepository.save(produto);
+        Produto salvo = produtoRepository.save(produto);
+
+        Map<String, Object[]> campos = new HashMap<>();
+        campos.put("nome", new Object[]{null, salvo.getNome()});
+        campos.put("preco", new Object[]{null, salvo.getPreco()});
+
+        auditoriaService.registrar("INCLUSAO", "PRODUTO", salvo.getId(), campos, null);
+
+        return salvo;
     }
 
     @PreAuthorize("hasAuthority('PRODUCT_UPDATE')")
     public Produto editarProduto(Produto produto) {
-        if (produtoRepository.existsById(produto.getId())) {
-            return produtoRepository.save(produto);
-        } else {
-            throw new IllegalArgumentException("Cliente não encontrado para atualização.");
+        Produto produtoAntigo = produtoRepository.findById(produto.getId())
+            .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado para atualização."));
+
+        Produto atualizado = produtoRepository.save(produto);
+
+        Map<String, Object[]> camposModificados = new HashMap<>();
+
+        if (!Objects.equals(produtoAntigo.getNome(), atualizado.getNome())) {
+            camposModificados.put("nome", new Object[]{produtoAntigo.getNome(), atualizado.getNome()});
         }
+        if (!Objects.equals(produtoAntigo.getPreco(), atualizado.getPreco())) {
+            camposModificados.put("preco", new Object[]{produtoAntigo.getPreco(), atualizado.getPreco()});
+        }
+
+        if (!camposModificados.isEmpty()) {
+            auditoriaService.registrar("ALTERACAO", "PRODUTO", atualizado.getId(), camposModificados, null);
+        }
+        return atualizado;
     }
 }

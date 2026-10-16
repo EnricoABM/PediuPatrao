@@ -1,6 +1,9 @@
 package com.umc.pediupatrao.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,12 +28,15 @@ public class ClienteService {
 
     private final ClienteUtils clienteUtils;
 
-    ClienteService(ClienteRepository clienteRepository, ClienteUtils clienteUtils) {
+    private final AuditoriaService auditoriaService;
+
+    ClienteService(ClienteRepository clienteRepository, ClienteUtils clienteUtils, AuditoriaService auditoriaService) {
         this.clienteRepository = clienteRepository;
         this.clienteUtils = clienteUtils;
+        this.auditoriaService = auditoriaService;
     }
 
-    /** 
+    /**
      * Salva um novo cliente no banco de dados do sistema
      * 
      * @param cliente Cliente a ser registrado no sistema
@@ -41,7 +47,17 @@ public class ClienteService {
     public Cliente novoCliente(Cliente cliente) {
         String enderecoFormatado = clienteUtils.formatarEndereco(cliente);
         cliente.setEndereco(enderecoFormatado);
-        return clienteRepository.save(cliente);
+
+        Cliente salvo = clienteRepository.save(cliente);
+
+        Map<String, Object[]> campos = new HashMap<>();
+        campos.put("nome", new Object[] { null, salvo.getNome() });
+        campos.put("telefone", new Object[] { null, salvo.getTelefone() });
+        campos.put("endereco", new Object[] { null, salvo.getEndereco() });
+
+        auditoriaService.registrar("INCLUSAO", "CLIENTE", salvo.getId(), campos, null);
+
+        return salvo;
     }
 
     /**
@@ -69,6 +85,10 @@ public class ClienteService {
         }
 
         clienteRepository.deleteById(id);
+
+        Map<String, Object[]> campos = new HashMap<>();
+
+        auditoriaService.registrar("EXCLUSAO", "CLIENTE", id, campos, null);
     }
 
     /**
@@ -100,9 +120,29 @@ public class ClienteService {
             throw new IllegalArgumentException("Cliente não encontrado para atualização.");
         }
 
+        Cliente clienteAntigo = clienteRepository.findById(cliente.getId()).get();
+
         String enderecoFormatado = clienteUtils.formatarEndereco(cliente);
         cliente.setEndereco(enderecoFormatado);
-        return clienteRepository.save(cliente);
+        Cliente atualizado = clienteRepository.save(cliente);
+
+        Map<String, Object[]> camposModificados = new HashMap<>();
+
+        if (!Objects.equals(clienteAntigo.getNome(), atualizado.getNome())) {
+            camposModificados.put("nome", new Object[] { clienteAntigo.getNome(), atualizado.getNome() });
+        }
+        if (!Objects.equals(clienteAntigo.getTelefone(), atualizado.getTelefone())) {
+            camposModificados.put("telefone", new Object[] { clienteAntigo.getTelefone(), atualizado.getTelefone() });
+        }
+        if (!Objects.equals(clienteAntigo.getEndereco(), atualizado.getEndereco())) {
+            camposModificados.put("endereco", new Object[] { clienteAntigo.getEndereco(), atualizado.getEndereco() });
+        }
+
+        if (!camposModificados.isEmpty()) {
+            auditoriaService.registrar("ALTERACAO", "CLIENTE", atualizado.getId(), camposModificados, null);
+        }
+
+        return atualizado;
     }
 
     /**

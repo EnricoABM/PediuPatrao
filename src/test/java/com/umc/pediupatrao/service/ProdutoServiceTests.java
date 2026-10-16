@@ -2,6 +2,7 @@ package com.umc.pediupatrao.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
@@ -25,6 +26,9 @@ class ProdutoServiceTests {
 
     @InjectMocks
     private ProdutoService produtoService;
+
+    @Mock 
+    private AuditoriaService auditoriaService;
 
     @Test
     void deveListarTodosOsProdutosComSucesso() {
@@ -58,6 +62,9 @@ class ProdutoServiceTests {
     @Test
     void deveExcluirProdutoPorIdComSucesso() {
         // Arrange
+        Produto prod = this.getProductTest();
+
+        when(produtoRepository.findById(anyString())).thenReturn(Optional.of(prod));
         doNothing().when(produtoRepository).deleteById("prod-123");
 
         // Act e Assert
@@ -107,14 +114,14 @@ class ProdutoServiceTests {
         // Arrange
         Produto prod = getProductTest();
         prod.setId("prod-123");
-        when(produtoRepository.existsById("prod-123")).thenReturn(true);
+        when(produtoRepository.findById("prod-123")).thenReturn(Optional.of(prod));
         when(produtoRepository.save(any(Produto.class))).thenReturn(prod);
 
         // Act e Assert
         Produto resultado = produtoService.salvar(prod);
 
         assertNotNull(resultado);
-        verify(produtoRepository, times(1)).existsById("prod-123");
+        verify(produtoRepository, times(1)).findById("prod-123");
         verify(produtoRepository, times(1)).save(prod);
     }
 
@@ -123,15 +130,15 @@ class ProdutoServiceTests {
         // Arrange
         Produto prod = getProductTest();
         prod.setId(null);
-        when(produtoRepository.existsById(null)).thenReturn(false);
+        when(produtoRepository.findById(null)).thenReturn(Optional.empty());
 
         // Act e Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             produtoService.editarProduto(prod);
         });
 
-        assertEquals("Cliente não encontrado para atualização.", exception.getMessage());
-        verify(produtoRepository, times(1)).existsById(null);
+        assertEquals("Produto não encontrado para atualização.", exception.getMessage());
+        verify(produtoRepository, times(1)).findById(null);
         verify(produtoRepository, never()).save(any());
     }
 
