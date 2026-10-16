@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.umc.pediupatrao.entity.Cliente;
 import com.umc.pediupatrao.repository.ClienteRepository;
@@ -33,6 +35,9 @@ public class ClienteServiceTests {
 
     @Mock
     private ClienteRepository clienteRepository;
+
+    @Mock 
+    private AuditoriaService auditoriaService;
 
     @InjectMocks
     private ClienteService clienteService;
@@ -59,6 +64,7 @@ public class ClienteServiceTests {
         Cliente cli = this.getClientTest();
 
         when(clienteRepository.existsById(cli.getId())).thenReturn(true);
+        when(clienteRepository.findById(anyString())).thenReturn(Optional.of(cli));
         when(clienteUtils.formatarEndereco(any(Cliente.class))).thenReturn("Rua B, 200");
         when(clienteRepository.save(any(Cliente.class))).thenReturn(cli);
 
@@ -182,6 +188,7 @@ public class ClienteServiceTests {
 
         cli.setId("123");
         when(clienteRepository.existsById("123")).thenReturn(true);
+        when(clienteRepository.findById(anyString())).thenReturn(Optional.of(cli));
         when(clienteUtils.formatarEndereco(any(Cliente.class))).thenReturn("Rua Atualizada, 456");
         when(clienteRepository.save(any(Cliente.class))).thenReturn(cli);
 

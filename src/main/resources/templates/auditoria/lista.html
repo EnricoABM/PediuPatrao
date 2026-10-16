@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Registros de Auditoria</title>
+</head>
+
+<body>
+
+    <div th:fragment="content" class="container py-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">
+                Registros de Auditoria
+            </h1>
+        </div>
+
+        <div class="alert alert-success alert-dismissible fade show" th:if="${sucesso}" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${sucesso}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" th:if="${erro}" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${erro}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="ps-4">Data/Hora</th>
+                            <th>Usuário (Perfil)</th>
+                            <th>Operação</th>
+                            <th>Entidade (ID)</th>
+                            <th>Alterações / Justificativa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(logs)}">
+                            <td colspan="5" class="text-center text-muted py-5">
+                                <i class="bi bi-shield-check fs-3 d-block mb-2"></i>
+                                Nenhum registro de auditoria encontrado.
+                            </td>
+                        </tr>
+                        <tr th:each="log : ${logs}">
+                            <td class="ps-4 text-muted" th:text="${#temporals.format(log.dataHora, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                            <td>
+                                <strong th:text="${log.usuarioUsername}"></strong>
+                            <td>
+                                <span class="badge"
+                                    th:classappend="${log.tipoOperacao == 'INCLUSAO'} ? 'bg-success' :
+                                                  (${log.tipoOperacao == 'ALTERACAO'} ? 'bg-primary' :
+                                                  (${log.tipoOperacao == 'MUDANCA_STATUS'} ? 'bg-warning text-dark' : 'bg-danger'))"
+                                    th:text="${log.tipoOperacao}">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="fw-bold" th:text="${log.entidadeAfetada}"></span>
+                                <br>
+                                <span class="text-muted font-monospace" th:text="${log.entidadeId != null && log.entidadeId.contains('-') ? log.entidadeId.substring(0, log.entidadeId.indexOf('-')) : log.entidadeId}"></span>
+                            </td>
+                            <td>
+                                <div th:if="${log.camposModificados != null && !log.camposModificados.isEmpty()}">
+                                    <ul class="list-unstyled mb-0">
+                                        <li th:each="entry : ${log.camposModificados}">
+                                            <strong th:text="${entry.key} + ':'"></strong>
+                                            <span class="text-danger" th:text="${entry.value[0]}"></span> 
+                                            <i class="bi bi-arrow-right mx-1"></i>
+                                            <span class="text-success" th:text="${entry.value[1]}"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div th:if="${log.justificativa != null && !log.justificativa.isEmpty()}" class="mt-1 text-danger">
+                                    <strong>Justificativa:</strong> <span th:text="${log.justificativa}"></span>
+                                </div>
+                                <span class="text-muted fst-italic" th:if="${(log.camposModificados == null || log.camposModificados.isEmpty()) && (log.justificativa == null || log.justificativa.isEmpty())}">-</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer text-muted small" th:if="${!#lists.isEmpty(logs)}">
+                Total de Registros: <strong th:text="${#lists.size(logs)}"></strong>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

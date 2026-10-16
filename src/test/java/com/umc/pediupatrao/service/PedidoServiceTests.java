@@ -48,6 +48,9 @@ class PedidoServiceTests {
     @InjectMocks
     private PedidoService pedidoService;
 
+    @Mock 
+    private AuditoriaService auditoriaService;
+
     @Test
     void deveCriarPedidoComSucesso() {
         // Arrange

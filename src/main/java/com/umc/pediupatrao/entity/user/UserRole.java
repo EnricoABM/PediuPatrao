@@ -4,6 +4,7 @@ import static com.umc.pediupatrao.entity.permission.UserPermission.*;
 import static com.umc.pediupatrao.entity.permission.ClientPermission.*;
 import static com.umc.pediupatrao.entity.permission.ProductPermission.*;
 import static com.umc.pediupatrao.entity.permission.OrderPermission.*;
+import static com.umc.pediupatrao.entity.permission.AuditPermission.*;
 
 
 import java.util.List;
@@ -23,7 +24,8 @@ public enum UserRole {
             USER_READ,
             USER_READ_ALL,
             USER_DELETE,
-            USER_UPDATE)),
+            USER_UPDATE,
+            AUDIT_READ_ALL)),
     GERENTE(List.of(
             USER_READ,
             CLIENT_READ,
@@ -41,7 +43,8 @@ public enum UserRole {
             ORDER_READ,
             ORDER_PROGRESS,
             ORDER_DESCOUNT,
-            ORDER_DELETE
+            ORDER_DELETE,
+            AUDIT_READ_ALL
         )),
     ATENDENTE(List.of(
             USER_READ,

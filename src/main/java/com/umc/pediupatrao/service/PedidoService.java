@@ -1,7 +1,10 @@
 package com.umc.pediupatrao.service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,13 +34,17 @@ public class PedidoService {
 
     private final PedidoMapper pedidoMapper;
 
+    private final AuditoriaService auditoriaService;
+
     PedidoService(PedidoRepository pedidoRepository, ItemPedidoRepository itemRepository,
-            PedidoHistoricoRepository historicoRepository, UsuarioService usuarioService, PedidoMapper pedidoMapper) {
+            PedidoHistoricoRepository historicoRepository, UsuarioService usuarioService, PedidoMapper pedidoMapper,
+            AuditoriaService auditoriaService) {
         this.pedidoRepository = pedidoRepository;
         this.itemRepository = itemRepository;
         this.historicoRepository = historicoRepository;
         this.usuarioService = usuarioService;
         this.pedidoMapper = pedidoMapper;
+        this.auditoriaService = auditoriaService;
     }
 
     @PreAuthorize("hasAuthority('ORDER_CREATE')")
@@ -64,7 +71,15 @@ public class PedidoService {
 
         historicoRepository.save(historico);
         itemRepository.saveAll(itens);
-        return pedidoRepository.save(pedido);
+        Pedido pedidoSalvo = pedidoRepository.save(pedido);
+
+        Map<String, Object[]> campos = new HashMap<>();
+        campos.put("status", new Object[] { null, pedidoSalvo.getStatus() });
+        campos.put("total", new Object[] { null, pedidoSalvo.getTotal() });
+
+        auditoriaService.registrar("INCLUSAO", "PEDIDO", pedidoSalvo.getId(), campos, null);
+
+        return pedidoSalvo;
     }
 
     @PreAuthorize("hasAuthority('ORDER_READ_ALL')")
@@ -81,7 +96,7 @@ public class PedidoService {
     public void avancarStatus(String pedidoId, String usuarioNome) {
         Usuario usuario = usuarioService.buscarPorUsername(usuarioNome).orElseThrow();
         Pedido pedido = buscarPorId(pedidoId);
-        
+
         if (pedido.getStatus() == PedidoStatus.FINALIZADO)
             return;
 
@@ -92,50 +107,75 @@ public class PedidoService {
 
         registrarHistorico(pedido, usuario, estadoAnterior, proximoEstado);
         pedidoRepository.save(pedido);
+
+        Map<String, Object[]> campos = new HashMap<>();
+        campos.put("status", new Object[]{estadoAnterior, proximoEstado});
+
+        auditoriaService.registrar("MUDANCA_STATUS", "PEDIDO", pedido.getId(), campos, null);
     }
 
     @PreAuthorize("hasAuthority('ORDER_DELETE')")
     public void cancelarPedido(String pedidoId, String justificativa, String usuarioNome) {
         Usuario usuario = usuarioService.buscarPorUsername(usuarioNome).orElseThrow();
         Pedido pedido = buscarPorId(pedidoId);
-        
+
         PedidoStatus estado = pedido.getStatus();
 
-        if(estado == PedidoStatus.FINALIZADO || estado == PedidoStatus.RETIRADO || estado == PedidoStatus.SAIU_PARA_ENTREGA || estado == PedidoStatus.CANCELADO)
+        if (estado == PedidoStatus.FINALIZADO || estado == PedidoStatus.RETIRADO
+                || estado == PedidoStatus.SAIU_PARA_ENTREGA || estado == PedidoStatus.CANCELADO)
             throw new RuntimeException("O pedido não pode ser cancelado");
 
+        PedidoStatus estadoAnterior = pedido.getStatus();
         pedido.setStatus(PedidoStatus.CANCELADO);
 
         pedido.setJustificativa(justificativa);
         registrarHistorico(pedido, usuario, estado, PedidoStatus.CANCELADO);
         pedidoRepository.save(pedido);
+
+        Map<String, Object[]> campos = new HashMap<>();
+        campos.put("status", new Object[]{estadoAnterior, PedidoStatus.CANCELADO});
+        campos.put("justificativa", new Object[]{null, justificativa});
+
+        auditoriaService.registrar("CANCELAMENTO", "PEDIDO", pedido.getId(), campos, justificativa);
     }
 
     @PreAuthorize("hasAuthority('ORDER_DESCOUNT')")
     public void aplicarDesconto(String pedidoId, Integer desconto) {
         Pedido pedido = buscarPorId(pedidoId);
+        
+        Integer descontoAnterior = pedido.getDesconto();
+        Double totalAnterior = pedido.getTotal();
+
         pedido.setDesconto(desconto);
-        
         pedido.setTotal(this.calcularTotal(pedido));
-        
+
         pedidoRepository.save(pedido);
+        Map<String, Object[]> campos = new HashMap<>();
+        if (!Objects.equals(descontoAnterior, desconto)) {
+            campos.put("desconto", new Object[]{descontoAnterior, desconto});
+            campos.put("total", new Object[]{totalAnterior, pedido.getTotal()});
+
+            auditoriaService.registrar("ALTERACAO", "PEDIDO", pedido.getId(), campos, null);
+        }
     }
 
     private PedidoStatus passarEstado(PedidoStatus atual) {
         switch (atual) {
-            case RECEBIDO: 
+            case RECEBIDO:
                 return PedidoStatus.EM_PREPARACAO;
-            case EM_PREPARACAO: 
+            case EM_PREPARACAO:
                 return PedidoStatus.PRONTO;
-            case PRONTO: 
+            case PRONTO:
                 return PedidoStatus.RETIRADO;
             case RETIRADO:
                 return PedidoStatus.FINALIZADO;
-            default: return atual;
+            default:
+                return atual;
         }
     }
 
-    private PedidoHistorico registrarHistorico(Pedido pedido, Usuario usuario, PedidoStatus anterior, PedidoStatus atual) {
+    private PedidoHistorico registrarHistorico(Pedido pedido, Usuario usuario, PedidoStatus anterior,
+            PedidoStatus atual) {
         PedidoHistorico historico = PedidoHistorico.builder()
                 .id(UUID.randomUUID().toString())
                 .pedido(pedido)
@@ -146,7 +186,7 @@ public class PedidoService {
                 .build();
 
         pedido.getHistoricos().add(historico);
-        
+
         return historicoRepository.save(historico);
     }
 
@@ -163,7 +203,7 @@ public class PedidoService {
     }
 
     private Double calcularTotal(Pedido ped) {
-        if (ped.getDesconto() == null) 
+        if (ped.getDesconto() == null)
             return ped.getSubtotal();
         Double descontoPorcentagem = (double) ped.getDesconto() / 100;
         Double total = ped.getSubtotal() * (1 - descontoPorcentagem);
