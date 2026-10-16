@@ -1,9 +1,7 @@
 package com.umc.pediupatrao.utils;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.umc.pediupatrao.dto.ItemPedidoDTO;
