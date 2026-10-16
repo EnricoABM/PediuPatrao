@@ -10,14 +10,11 @@
     <div th:fragment="content" class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="mb-4">Gestão de Produtos</h1>
-    
-            <!-- Botão para abrir o formulário -->
-            <a th:href="@{/produtos/novo}" sec:authorize="hasRole('GERENTE')" class="btn btn-primary mb-3">
+                <a th:href="@{/produtos/novo}" sec:authorize="hasRole('GERENTE')" class="btn btn-primary mb-3">
                 Novo Produto
             </a>
         </div>
 
-        <!-- Mensagens de feedback -->
         <div class="alert alert-success alert-dismissible fade show" th:if="${sucesso}" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>
             <span th:text="${sucesso}"></span>
@@ -29,9 +26,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
 
-
-        <!-- Listagem de Produtos -->
-        <table class="table table-bordered table-striped mt-3">
+        <table class="table table-bordered mt-3">
             <thead class="table-dark">
                 <tr>
                     <th style="width: 20%;">ID</th>
@@ -49,12 +44,11 @@
                         Nenhum produto cadastrado.
                     </td>
                 </tr>
-                <!-- Loop para listar os produtos -->
                 <tr th:each="produto : ${produtos}">
                     <td th:text="${produto.id.substring(0, produto.id.indexOf('-'))}"></td>
                     <td th:text="${produto.nome}"></td>
                     <td th:text="${produto.tipo}"></td>
-                    <td th:text="${#numbers.formatDecimal(produto.preco, 1, 'COMMA', 2, 'POINT')}"></td>
+                    <td th:text="${'R$' + #numbers.formatDecimal(produto.preco, 1, 'COMMA', 2, 'POINT')}"></td>
                     <td th:text="${produto.ativo ? 'Sim' : 'Não'}">Sim</td>
                     <td sec:authorize="hasRole('GERENTE')" class="d-flex gap-1 justify-content-around">
                         <a 
