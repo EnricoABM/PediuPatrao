@@ -1,7 +1,9 @@
-package com.umc.pediupatrao.repository;
+package com.umc.pediupatrao.repository.pedido;
 
-import com.umc.pediupatrao.entity.Pedido;
 import org.springframework.data.mongodb.repository.MongoRepository;
+
+import com.umc.pediupatrao.entity.pedido.Pedido;
+
 import java.util.List;
 
 public interface PedidoRepository extends MongoRepository<Pedido, String> {

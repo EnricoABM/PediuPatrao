@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-PizzariaPedidosApplication<pediupatrao>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.umc.pediupatrao.PizzariaPedidosApplication",
+            "projectName": "pediupatrao",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
