@@ -23,6 +23,7 @@ public enum UserRole {
             USER_DELETE,
             USER_UPDATE)),
     GERENTE(List.of(
+            USER_READ,
             CLIENT_READ,
             CLIENT_READ_ALL,
             CLIENT_CREATE,
@@ -35,6 +36,7 @@ public enum UserRole {
             PRODUCT_UPDATE
         )),
     ATENDENTE(List.of(
+            USER_READ,
             CLIENT_READ,
             CLIENT_READ_ALL,
             CLIENT_CREATE,

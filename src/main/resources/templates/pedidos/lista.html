@@ -67,7 +67,7 @@
                                 </span>
                             </td>
                             <td>
-                                <a th:href="@{/pedidos/exibir/${pedido.id}}" class="btn btn-success btn-sm">
+                                <a th:href="@{/pedidos/exibir/{id}(id=${pedido.id})}" class="btn btn-success btn-sm">
                                     Exibir
                                 </a>
                             </td>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Detalhes do Pedido</title>
+</head>
+
+<body>
+    <div th:fragment="content" class="container py-4">
+
+        <div class="d-flex flex-column mb-4">
+            <h1 class="mb-2">
+                Pedido
+            </h1>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3 class="h5 mb-3 text-dark fw-bold">Informações do Pedido</h3>
+                        <p><strong>Cliente:</strong> <span th:text="${pedido.cliente.nome}"></span></p>
+                        <p><strong>Atendente:</strong> <span th:text="${pedido.usuario.username}"></span></p>
+                        <p><strong>Horário:</strong> <span
+                                th:text="${#temporals.format(pedido.horario, 'dd ''de'' MMMM, yyyy, HH:mm')}"></span>
+                        </p>
+                        <div class="d-flex flex-row align-items-center justify-content-between gap-3 mb-4">
+                            <div>
+                                <strong>Status Atual:</strong> <span class="badge bg-secondary"
+                                    th:text="${pedido.status}"></span>
+                            </div>
+                            <form th:action="@{/pedidos/{id}/avancar(id=${pedido.id})}" method="post"
+                                th:if="${pedido.status.name() != 'FINALIZADO' && pedido.status.name() != 'CANCELADO'}">
+                                <button type="submit" class="btn btn-success btn-sm">Avançar <i
+                                        class="bi bi-arrow-right"></i></button>
+                            </form>
+                        </div>
+
+                        <div th:if="${pedido.status.name() != 'CANCELADO' && pedido.status.name() != 'FINALIZADO'}">
+                            <h3 class="h6 mb-2 text-dark fw-bold">Cancelar Pedido</h3>
+                            <form th:action="@{/pedidos/{id}/cancelar(id=${pedido.id})}" method="post" class="mb-0">
+                                <textarea name="justificativa" class="form-control mb-2" rows="3"
+                                    placeholder="Digite a justificativa" required></textarea>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-danger btn-sm">Confirmar Cancelamento</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div th:if="${pedido.status.name() == 'CANCELADO'}">
+                            <h3 class="h6 mb-2 text-dark fw-bold">Cancelamento</h3>
+                            <textarea class="form-control mb-2 bg-light" rows="3" style="resize: none;" readonly
+                                th:text="${pedido.justificativa}"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3 class="h5 mb-3 text-dark fw-bold">Produtos do Pedido</h3>
+
+                        <form th:action="@{/pedidos/{id}/desconto(id=${pedido.id})}" method="post" class="mb-3"
+                            th:if="${pedido.status.name() != 'CANCELADO' && pedido.status.name() != 'SAIU_PARA_ENTREGA' && pedido.status.name() != 'RETIRADO' && pedido.status.name() != 'FINALIZADO'}">
+                            <label class="form-label small fw-bold">Aplicar Desconto (%)</label>
+                            <div class="input-group">
+                                <input type="number" name="desconto" class="form-control" min="1" max="20"
+                                    th:value="${pedido.desconto}" required />
+                                <button class="btn btn-outline-primary" type="submit">Salvar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Qtd</th>
+                                    <th>Preço Unit.</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${pedido.itens}">
+                                    <td th:text="${item.produto.nome}"></td>
+                                    <td th:text="${item.quantidade}"></td>
+                                    <td th:text="${'R$ ' + #numbers.formatDecimal(item.produto.preco, 1, 2, 'COMMA')}">
+                                    </td>
+                                    <td
+                                        th:text="${'R$ ' + #numbers.formatDecimal(item.produto.preco * item.quantidade, 1, 2, 'COMMA')}">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer text-end">
+                        <p class="mb-1"><strong>Subtotal:</strong> <span
+                                th:text="${'R$ ' + #numbers.formatDecimal(pedido.subtotal, 1, 2, 'COMMA')}"></span></p>
+                        <p class="mb-1" th:if="${pedido.desconto != null && pedido.desconto > 0}">
+                            <strong>Desconto:</strong> <span th:text="${pedido.desconto + '%'}"></span>
+                        </p>
+                        <h4 class="mb-0"><strong>Total:</strong> <span
+                                th:text="${'R$ ' + #numbers.formatDecimal(pedido.total, 1, 2, 'COMMA')}"></span></h4>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body pb-2">
+                        <h3 class="h5 mb-2 text-dark fw-bold">Histórico de Alterações</h3>
+                    </div>
+                    <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm table-hover mb-0 small">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Usuário</th>
+                                    <th>Estado Anterior</th>
+                                    <th>Novo Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(pedido.historicos)}">
+                                    <td colspan="4" class="text-center text-muted py-3">Nenhum registro.</td>
+                                </tr>
+                                <tr th:each="h : ${pedido.historicos}">
+                                    <td class="text-muted" th:text="${#temporals.format(h.horario, 'dd/MM HH:mm')}">
+                                    </td>
+                                    <td th:text="${h.usuario != null ? h.usuario.username : 'Sistema'}"></td>
+                                    <td>
+                                        <span th:text="${h.estadoAnterior}"></span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${h.estadoAtual}"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

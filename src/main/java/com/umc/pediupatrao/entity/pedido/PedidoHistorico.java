@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.umc.pediupatrao.entity.user.Usuario;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 

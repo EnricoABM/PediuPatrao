@@ -1,5 +1,6 @@
 package com.umc.pediupatrao.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,6 +10,8 @@ import com.umc.pediupatrao.dto.PedidoRegisterDTO;
 import com.umc.pediupatrao.entity.pedido.ItemPedido;
 import com.umc.pediupatrao.entity.pedido.Pedido;
 import com.umc.pediupatrao.entity.pedido.PedidoHistorico;
+import com.umc.pediupatrao.entity.pedido.PedidoStatus;
+import com.umc.pediupatrao.entity.user.Usuario;
 import com.umc.pediupatrao.repository.pedido.ItemPedidoRepository;
 import com.umc.pediupatrao.repository.pedido.PedidoHistoricoRepository;
 import com.umc.pediupatrao.repository.pedido.PedidoRepository;
@@ -72,8 +75,78 @@ public class PedidoService {
         return pedidoRepository.findAll();
     }
 
-    public Pedido atualizarStatus(String id, String status) {
-        return null;
+    public Pedido buscarPorId(String id) {
+        return pedidoRepository.findById(id).orElseThrow();
+    }
+
+    public void avancarStatus(String pedidoId, String usuarioNome) {
+        Usuario usuario = usuarioService.buscarPorUsername(usuarioNome).orElseThrow();
+        Pedido pedido = buscarPorId(pedidoId);
+        
+        if (pedido.getStatus() == PedidoStatus.FINALIZADO)
+            return;
+
+        PedidoStatus estadoAnterior = pedido.getStatus();
+        PedidoStatus proximoEstado = passarEstado(estadoAnterior);
+
+        pedido.setStatus(proximoEstado);
+
+        registrarHistorico(pedido, usuario, estadoAnterior, proximoEstado);
+        pedidoRepository.save(pedido);
+    }
+
+    public void cancelarPedido(String pedidoId, String justificativa, String usuarioNome) {
+        Usuario usuario = usuarioService.buscarPorUsername(usuarioNome).orElseThrow();
+        Pedido pedido = buscarPorId(pedidoId);
+        
+        PedidoStatus estado = pedido.getStatus();
+
+        if(estado == PedidoStatus.FINALIZADO || estado == PedidoStatus.RETIRADO || estado == PedidoStatus.SAIU_PARA_ENTREGA || estado == PedidoStatus.CANCELADO)
+            throw new RuntimeException("O pedido não pode ser cancelado");
+
+        pedido.setStatus(PedidoStatus.CANCELADO);
+
+        pedido.setJustificativa(justificativa);
+        registrarHistorico(pedido, usuario, estado, PedidoStatus.CANCELADO);
+        pedidoRepository.save(pedido);
+    }
+
+    public void aplicarDesconto(String pedidoId, Integer desconto) {
+        Pedido pedido = buscarPorId(pedidoId);
+        pedido.setDesconto(desconto);
+        
+        pedido.setTotal(this.calcularTotal(pedido));
+        
+        pedidoRepository.save(pedido);
+    }
+
+    private PedidoStatus passarEstado(PedidoStatus atual) {
+        switch (atual) {
+            case RECEBIDO: 
+                return PedidoStatus.EM_PREPARACAO;
+            case EM_PREPARACAO: 
+                return PedidoStatus.PRONTO;
+            case PRONTO: 
+                return PedidoStatus.RETIRADO;
+            case RETIRADO:
+                return PedidoStatus.FINALIZADO;
+            default: return atual;
+        }
+    }
+
+    private PedidoHistorico registrarHistorico(Pedido pedido, Usuario usuario, PedidoStatus anterior, PedidoStatus atual) {
+        PedidoHistorico historico = PedidoHistorico.builder()
+                .id(UUID.randomUUID().toString())
+                .pedido(pedido)
+                .usuario(usuario)
+                .horario(LocalDateTime.now())
+                .estadoAnterior(anterior)
+                .estadoAtual(atual)
+                .build();
+
+        pedido.getHistoricos().add(historico);
+        
+        return historicoRepository.save(historico);
     }
 
     private Double calcularSubtotal(Pedido ped) {

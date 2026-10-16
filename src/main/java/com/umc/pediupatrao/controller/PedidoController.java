@@ -43,7 +43,8 @@ public class PedidoController {
 
     private static Logger log = LoggerFactory.getLogger(PedidoController.class);
 
-    PedidoController(PedidoService pedidoService, ClienteService clienteService, ProdutoService produtoService, UsuarioRepository usuarioRepository) {
+    PedidoController(PedidoService pedidoService, ClienteService clienteService, ProdutoService produtoService,
+            UsuarioRepository usuarioRepository) {
         this.pedidoService = pedidoService;
         this.clienteService = clienteService;
         this.produtoService = produtoService;
@@ -68,17 +69,17 @@ public class PedidoController {
         model.addAttribute("usuario", usuario);
 
         List<ClienteInfoDTO> clientes = clienteService.listarClientes()
-            .stream().map(ClienteInfoDTO::fromModel)
-            .toList();
-        
+                .stream().map(ClienteInfoDTO::fromModel)
+                .toList();
+
         model.addAttribute("clientes", clientes);
 
         List<ProdutoInfoDTO> produtos = produtoService.listarProdutos()
-            .stream().map(ProdutoInfoDTO::from)
-            .toList();
+                .stream().map(ProdutoInfoDTO::from)
+                .toList();
 
         model.addAttribute("produtos", produtos);
-        
+
         model.addAttribute("content", "pedidos/form :: content");
         return "layout";
     }
@@ -90,9 +91,31 @@ public class PedidoController {
         return "redirect:/pedidos";
     }
 
-    @PutMapping("/{id}/status")
-    public Pedido atualizarStatus(@PathVariable String id, @RequestParam String status) {
-        return pedidoService.atualizarStatus(id, status);
+    @GetMapping("/exibir/{id}")
+    public String exibirDetalhesPedido(@PathVariable String id, Model model) {
+        Pedido pedido = pedidoService.buscarPorId(id);
+        model.addAttribute("pedido", pedido);
+        model.addAttribute("content", "pedidos/info :: content");
+        return "layout";
     }
+
+    @PostMapping("/{id}/avancar")
+    public String avancarPedido(@PathVariable String id, Principal principal) {
+        pedidoService.avancarStatus(id, principal.getName());
+        return "redirect:/pedidos/exibir/" + id;
+    }
+
+    @PostMapping("/{id}/cancelar")
+    public String cancelarPedido(@PathVariable String id, @RequestParam String justificativa, Principal principal) {
+        pedidoService.cancelarPedido(id, justificativa, principal.getName());
+        log.info("Cancelando pedido");
+        return "redirect:/pedidos/exibir/" + id;
+    }
+
+    @PostMapping("/{id}/desconto")
+public String aplicarDesconto(@PathVariable String id, @RequestParam Integer desconto) {
+    pedidoService.aplicarDesconto(id, desconto);
+    return "redirect:/pedidos/exibir/" + id;
+}
 
 }

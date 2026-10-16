@@ -1,6 +1,7 @@
 package com.umc.pediupatrao.entity.pedido;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -45,7 +46,9 @@ public class Pedido {
     private List<ItemPedido> itens;
 
     @DBRef(lazy = true)
-    private List<PedidoHistorico> historicos;
+    private List<PedidoHistorico> historicos = new ArrayList<>();
+
+    private String justificativa;
 
     public static PedidoBuilder builder() {
         return new PedidoBuilder();
@@ -62,6 +65,7 @@ public class Pedido {
         private Double total;
         private List<ItemPedido> itens;
         private List<PedidoHistorico> historicos;
+        private String justificativa;
 
         public PedidoBuilder id(String id) {
             this.id = id;
@@ -113,6 +117,11 @@ public class Pedido {
             return this;
         }
 
+        public PedidoBuilder justificativa(String justificativa) {
+            this.justificativa = justificativa;
+            return this;
+        }
+
         public Pedido build() {
             Pedido ped = new Pedido();
             ped.setId(id);
@@ -125,6 +134,7 @@ public class Pedido {
             ped.setTotal(total);
             ped.setItens(itens);
             ped.setHistoricos(historicos);
+            ped.setJustificativa(justificativa);
 
             return ped;
         }
