@@ -1,6 +1,7 @@
 package com.umc.pediupatrao.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,14 @@ public class PedidoService {
         historico.setPedido(pedido);
         historico.setEstadoAnterior(null);
         historico.setEstadoAtual(pedido.getStatus());
+        historico.setHorario(pedido.getHorario());
 
+        // Persistir as referências explicitamente no documento de Pedido.
+        pedido.setItens(itens);
+        if (pedido.getHistoricos() == null)
+            pedido.setHistoricos(new ArrayList<>());
+        
+        pedido.getHistoricos().add(historico);
         historicoRepository.save(historico);
         itemRepository.saveAll(itens);
         Pedido pedidoSalvo = pedidoRepository.save(pedido);
