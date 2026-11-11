@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <section
+      th:fragment="content"
+      class="pp-dashboard py-2"
+      aria-labelledby="dashboard-title"
+    >
+      <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
+
+      <header
+        class="pp-dashboard-header d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4"
+      >
+        <h1 id="dashboard-title" class="h2 fw-bold mb-1">
+          Visão geral das vendas
+        </h1>
+      </header>
+
+      <form
+        id="dashboard-filtros"
+        class="pp-filter-card mb-4"
+        method="get"
+        th:action="@{/dashboard}"
+        aria-label="Filtrar dashboard"
+      >
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <h2 class="h6 fw-bold mb-0">Filtros</h2>
+        </div>
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <label for="periodo" class="form-label">Período</label>
+            <select class="form-select" id="periodo" name="periodo">
+              <option value="7" th:selected="${periodo == 7}">
+                Últimos 7 dias
+              </option>
+              <option
+                value="30"
+                th:selected="${(periodo == null and inicio == null) or periodo == 30}"
+              >
+                Últimos 30 dias
+              </option>
+              <option value="90" th:selected="${periodo == 90}">
+                Últimos 90 dias
+              </option>
+              <option value="" th:selected="${inicio != null}">
+                Personalizado
+              </option>
+            </select>
+          </div>
+          <div class="col-6 col-sm-3 col-xl-2">
+            <label for="inicio" class="form-label">Data inicial</label>
+            <input
+              class="form-control"
+              type="date"
+              name="inicio"
+              id="inicio"
+              th:value="${inicio}"
+            />
+          </div>
+          <div class="col-6 col-sm-3 col-xl-2">
+            <label for="fim" class="form-label">Data final</label>
+            <input
+              class="form-control"
+              type="date"
+              name="fim"
+              id="fim"
+              th:value="${fim}"
+            />
+          </div>
+          <div class="col-12 col-sm-8 col-xl-3">
+            <label for="produtoId" class="form-label">Produto</label>
+            <select class="form-select" id="produtoId" name="produtoId">
+              <option value="">Todos os produtos</option>
+              <option
+                th:each="produto : ${produtos}"
+                th:value="${produto.id}"
+                th:text="${produto.nome}"
+                th:selected="${produto.id == produtoId}"
+              >
+                Produto
+              </option>
+            </select>
+          </div>
+          <div class="col-12 col-sm-4 col-xl-2 d-grid">
+            <button type="submit" class="btn btn-dark pp-apply-btn">
+              Aplicar filtros
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div
+        th:if="${erro != null}"
+        class="alert alert-danger d-flex align-items-start gap-2"
+        role="alert"
+      >
+        <span th:text="${erro}">Não foi possível aplicar os filtros.</span>
+      </div>
+
+      <th:block th:if="${resumo != null}">
+        <div
+          class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3"
+        >
+          <h2 class="pp-section-heading mb-0">Indicadores principais</h2>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <article class="pp-kpi h-100">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <span class="pp-kpi-label">Faturamento total</span>
+              </div>
+              <p
+                class="pp-kpi-value mb-1"
+                th:text="|R$ ${#numbers.formatDecimal(resumo.faturamento, 1, 'POINT', 2, 'COMMA')}|"
+              >
+                R$ 0,00
+              </p>
+            </article>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <article class="pp-kpi h-100">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <span class="pp-kpi-label">Pedidos finalizados</span>
+              </div>
+              <p
+                class="pp-kpi-value mb-1"
+                th:text="${resumo.pedidosFinalizados}"
+              >
+                0
+              </p>
+            </article>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <article class="pp-kpi h-100">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <span class="pp-kpi-label">Pedidos cancelados</span>
+              </div>
+              <p
+                class="pp-kpi-value mb-1"
+                th:text="${resumo.pedidosCancelados}"
+              >
+                0
+              </p>
+            </article>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <article class="pp-kpi h-100">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <span class="pp-kpi-label">Ticket médio</span>
+              </div>
+              <p
+                class="pp-kpi-value mb-1"
+                th:text="|R$ ${#numbers.formatDecimal(resumo.ticketMedio, 1, 'POINT', 2, 'COMMA')}|"
+              >
+                R$ 0,00
+              </p>
+            </article>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-xl-8">
+            <article class="pp-panel h-100">
+              <div class="pp-panel-heading">
+                <div>
+                  <h2 class="pp-panel-title">Evolução do faturamento</h2>
+                  <p class="pp-panel-desc"></p>
+                </div>
+              </div>
+              <div th:if="${#lists.isEmpty(vendas)}" class="pp-empty">
+                <p>Não há vendas finalizadas neste período.</p>
+              </div>
+              <div th:unless="${#lists.isEmpty(vendas)}" class="pp-chart-wrap">
+                <canvas
+                  id="pp-sales-chart"
+                  role="img"
+                  aria-label="Gráfico da evolução do faturamento por dia"
+                ></canvas>
+              </div>
+            </article>
+          </div>
+          <div class="col-12 col-xl-4">
+            <article class="pp-panel h-100">
+              <div class="pp-panel-heading">
+                <h2 class="pp-panel-title">Situação dos pedidos</h2>
+              </div>
+              <div th:if="${totalPedidosStatus == 0}" class="pp-empty">
+                <p>Nenhum pedido no período.</p>
+              </div>
+              <div
+                th:unless="${totalPedidosStatus == 0}"
+                class="pp-status-layout"
+              >
+                <div class="pp-doughnut-wrap">
+                  <canvas
+                    id="pp-status-chart"
+                    role="img"
+                    aria-label="Gráfico de distribuição de pedidos por estado"
+                  ></canvas>
+                </div>
+                <ul
+                  class="pp-status-legend list-unstyled mb-0"
+                  id="pp-status-legend"
+                  aria-label="Legenda dos estados"
+                ></ul>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-xl-6">
+            <article class="pp-panel h-100">
+              <div class="pp-panel-heading">
+                <div>
+                  <h2 class="pp-panel-title">Produtos mais vendidos</h2>
+                </div>
+              </div>
+              <div th:if="${#lists.isEmpty(ranking)}" class="pp-empty">
+                <p>Nenhum produto vendido no período.</p>
+              </div>
+              <div
+                th:unless="${#lists.isEmpty(ranking)}"
+                class="table-responsive"
+              >
+                <table class="table pp-table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col">Posição</th>
+                      <th scope="col">Produto</th>
+                      <th scope="col" class="text-end">Unidades</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="produto, it : ${ranking}">
+                      <td>
+                        <span class="pp-rank" th:text="${it.count}">1</span>
+                      </td>
+                      <td class="fw-medium" th:text="${produto.produtoNome}">
+                        Produto
+                      </td>
+                      <td
+                        class="text-end fw-semibold"
+                        th:text="${produto.quantidadeVendida}"
+                      >
+                        0
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+          <div class="col-12 col-xl-6">
+            <article class="pp-panel h-100">
+              <div class="pp-panel-heading">
+                <h2 class="pp-panel-title">Tempo médio de processamento</h2>
+              </div>
+              <div th:if="${#lists.isEmpty(tempos)}" class="pp-empty">
+                <p>Não há transições suficientes no período.</p>
+              </div>
+              <div
+                th:unless="${#lists.isEmpty(tempos)}"
+                class="table-responsive"
+              >
+                <table class="table pp-table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col" colspan="2">Estado</th>
+                      <th scope="col" class="text-end">Média</th>
+                      <th scope="col" class="text-end">Ocorrências</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="tempo : ${tempos}">
+                      <td>
+                        <span
+                          class="pp-transition-from"
+                          th:text="${tempo.estadoAnterior}"
+                          >RECEBIDO</span
+                        >
+                      </td>
+                      <td>
+                        <span class="fw-medium" th:text="${tempo.estadoAtual}"
+                          >EM_PREPARACAO</span
+                        >
+                      </td>
+                      <td
+                        class="text-end text-nowrap"
+                        th:text="|${#numbers.formatDecimal(tempo.mediaMinutos, 1, 'POINT', 1, 'COMMA')} min|"
+                      >
+                        0 min
+                      </td>
+                      <td class="text-end" th:text="${tempo.transicoes}">0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div
+          th:if="${filtro != null and filtro.produtoId != null}"
+          class="pp-note mb-3"
+        >
+          No filtro por produto, o faturamento soma o valor final integral dos
+          pedidos que contêm esse produto, inclusive outros itens do mesmo
+          pedido.
+        </div>
+      </th:block>
+
+      <!-- Dados produzidos pelo @Controller. O Thymeleaf serializa os records como JSON. -->
+      <script th:inline="javascript">
+        window.pediuPatraoDashboard = {
+          vendas: /*[[${vendas}]]*/ [],
+          status: /*[[${statusPedidos}]]*/ [],
+        };
+      </script>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+      <script th:src="@{/js/dashboard.js}"></script>
+    </section>
+  </body>
+</html>
