@@ -8,7 +8,7 @@ public record ItemPedidoDTO(
         Integer quantidade) {
     public static ItemPedidoDTO from(ItemPedido item) {
         return new ItemPedidoDTO(
-                item.getId(),
+                item.getProduto().getId(),
                 item.getProduto().getNome(),
                 item.getQuantidade());
     }

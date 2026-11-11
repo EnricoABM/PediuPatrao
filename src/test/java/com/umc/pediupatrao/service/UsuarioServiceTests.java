@@ -2,6 +2,7 @@ package com.umc.pediupatrao.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -25,6 +26,9 @@ class UsuarioServiceTests {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private AuditoriaService auditoriaService;
 
     @InjectMocks
     private UsuarioService usuarioService;
@@ -66,7 +70,8 @@ class UsuarioServiceTests {
 
         when(passwordEncoder.encode("123456")).thenReturn("encoded-password");
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
-
+        // doNothing().when(auditoriaService).registrar(anyString(), anyString(), anyString(), any(), anyString());
+        
         // Act e Assert
         usuarioService.salvarUsuario(usuario);
 

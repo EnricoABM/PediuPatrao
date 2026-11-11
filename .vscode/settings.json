@@ -1,7 +1,4 @@
 {
-    "files.readonlyInclude": {
-        "docs/*": true,
-    },
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.debug.settings.onBuildFailureProceed": true
 }

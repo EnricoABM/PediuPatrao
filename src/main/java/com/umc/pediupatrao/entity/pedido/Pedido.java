@@ -43,7 +43,7 @@ public class Pedido {
     private Double total;
 
     @DBRef(lazy = true)
-    private List<ItemPedido> itens;
+    private List<ItemPedido> itens = new ArrayList<>();
 
     @DBRef(lazy = true)
     private List<PedidoHistorico> historicos = new ArrayList<>();
